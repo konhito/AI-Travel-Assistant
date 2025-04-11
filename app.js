@@ -1,11 +1,8 @@
-// API Configuration
-const FLIGHT_API_KEY = "API_KEY_HERE"; // Add your RapidAPI key here (same key works for both APIs)
-const HOTEL_API_KEY = "API_KEY_HERE"; // Add your RapidAPI key here (same key works for both APIs)
+const FLIGHT_API_KEY = "API_KEY_HERE";
+const HOTEL_API_KEY = "API_KEY_HERE";
 const AVIATION_API_KEY = "API_KEY_HERE";
 
-// City to IATA Code Mapping
 const cityToIATA = {
-  // India
   mumbai: "BOM",
   delhi: "DEL",
   bangalore: "BLR",
@@ -16,19 +13,16 @@ const cityToIATA = {
   pune: "PNQ",
   goa: "GOI",
 
-  // UK
   london: "LHR",
   manchester: "MAN",
   birmingham: "BHX",
 
-  // USA
   newyork: "JFK",
   chicago: "ORD",
   losangeles: "LAX",
   miami: "MIA",
   sanfrancisco: "SFO",
 
-  // Other major cities
   dubai: "DXB",
   singapore: "SIN",
   bangkok: "BKK",
@@ -36,7 +30,6 @@ const cityToIATA = {
   frankfurt: "FRA",
 };
 
-// Add this after the cityToIATA object
 const indianHotels = [
   { name: "The Grand Palace", chain: "Taj Hotels", location: "Mumbai" },
   { name: "Royal Imperial", chain: "Oberoi Group", location: "Delhi" },
@@ -55,18 +48,11 @@ const indianHotels = [
   { name: "Diamond Bay Hotel", chain: "Marriott", location: "Kochi" },
 ];
 
-// Helper function to get IATA code
 function getIATACode(city) {
   const normalizedCity = city.toLowerCase().replace(/\s+/g, "");
   return cityToIATA[normalizedCity] || city.toUpperCase();
 }
 
-// Note: You can use the same RapidAPI key for both services
-// Get your API key from:
-// 1. https://rapidapi.com/skyscanner/api/skyscanner-flight-search
-// 2. https://rapidapi.com/tipsters/api/booking-com
-
-// DOM Elements
 const chatContainer = document.getElementById("chatContainer");
 const userInput = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
@@ -75,7 +61,6 @@ const searchForm = document.getElementById("searchForm");
 const resultsDiv = document.getElementById("results");
 const loadingDiv = document.getElementById("loading");
 
-// Chat state
 let conversationState = {
   collectingInfo: false,
   currentStep: null,
@@ -83,7 +68,6 @@ let conversationState = {
   lastQuestion: null,
 };
 
-// Event Listeners
 sendButton.addEventListener("click", handleUserMessage);
 userInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
@@ -91,7 +75,6 @@ userInput.addEventListener("keypress", (e) => {
   }
 });
 
-// Chat Functions
 function handleUserMessage() {
   const message = userInput.value.trim();
   if (!message) return;
@@ -99,7 +82,6 @@ function handleUserMessage() {
   addMessageToChat(message, "user");
   userInput.value = "";
 
-  // Process the message
   processUserMessage(message);
 }
 
@@ -114,15 +96,14 @@ function addMessageToChat(message, sender) {
 function processUserMessage(message) {
   const lowerMessage = message.toLowerCase();
 
-  // Handle hotel search response
   if (conversationState.lastQuestion === "hotel") {
     if (
       lowerMessage.includes("yes") ||
       lowerMessage.includes("sure") ||
       lowerMessage.includes("ok")
     ) {
-      displayRandomHotels(); // Directly show random hotels
-      conversationState.lastQuestion = null; // Reset the state
+      displayRandomHotels();
+      conversationState.lastQuestion = null;
       return;
     }
     conversationState.lastQuestion = null;
@@ -185,7 +166,6 @@ function handleInfoCollection(message) {
       );
       break;
     case "date":
-      // Validate date format
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
       if (!dateRegex.test(message)) {
         addMessageToChat(
@@ -275,12 +255,10 @@ function showHelpMessage() {
   );
 }
 
-// API Functions
 async function searchFlights(data) {
   const fromCode = getIATACode(data.from);
   const toCode = getIATACode(data.to);
 
-  // Using AviationStack API with date parameters
   const url = `https://api.aviationstack.com/v1/flights?access_key=${AVIATION_API_KEY}&dep_iata=${fromCode}&arr_iata=${toCode}&date=${data.date}`;
 
   try {
@@ -300,7 +278,6 @@ async function searchFlights(data) {
       throw new Error("No flights found for the given criteria");
     }
 
-    // Process and return flight data
     const flights = result.data.map((flight) => ({
       airline: flight.airline.name,
       flightNumber: flight.flight.iata,
@@ -322,7 +299,6 @@ async function searchFlights(data) {
 }
 
 async function searchHotels(data) {
-  // Using Booking.com API as an example
   const url = `https://booking-com.p.rapidapi.com/v1/hotels/search?location=${data.hotelLocation}&checkin_date=${data.checkInDate}&adults_number=1`;
 
   const options = {
@@ -347,7 +323,6 @@ async function searchHotels(data) {
   }
 }
 
-// Display Functions
 function displayFlightResults(flights) {
   if (flights.length === 0) {
     addMessageToChat(
@@ -357,7 +332,6 @@ function displayFlightResults(flights) {
     return;
   }
 
-  // Take only top 5 flights
   const topFlights = flights.slice(0, 5);
 
   let message = "Here are the top 5 available flights:\n\n";
@@ -381,9 +355,7 @@ function displayFlightResults(flights) {
       }
     );
 
-    // Generate random price between ₹5000 and ₹50000
     const basePrice = Math.floor(Math.random() * 45000) + 5000;
-    // Add some variation based on airline and route
     const airlineMultiplier = flight.airline.includes("Air India")
       ? 1.2
       : flight.airline.includes("Emirates")
@@ -439,7 +411,6 @@ function displayFlightResults(flights) {
 
   message += "</div>";
 
-  // Add CSS styles for the cards
   message += `
         <style>
             .flight-cards-container {
@@ -529,24 +500,22 @@ function displayFlightResults(flights) {
 
   addMessageToChat(message, "bot");
 
-  // Add hotel prompt after flight results
   setTimeout(() => {
     addMessageToChat(
       "Would you like me to help you find a hotel at your destination?",
       "bot"
     );
-    conversationState.lastQuestion = "hotel"; // Set the lastQuestion state
+    conversationState.lastQuestion = "hotel";
     conversationState.collectingInfo = false;
     conversationState.currentStep = null;
   }, 1000);
 }
 
 function displayHotelResults(hotels) {
-  // Generate 5 random hotels
   let randomHotels = [];
   for (let i = 0; i < 5; i++) {
-    const randomPrice = Math.floor(Math.random() * 15000) + 5000; // Random price between 5000-20000
-    const randomRating = (Math.random() * 2 + 3).toFixed(1); // Random rating between 3.0-5.0
+    const randomPrice = Math.floor(Math.random() * 15000) + 5000;
+    const randomRating = (Math.random() * 2 + 3).toFixed(1);
     const randomHotel =
       indianHotels[Math.floor(Math.random() * indianHotels.length)];
 
@@ -594,7 +563,6 @@ function displayHotelResults(hotels) {
 
   message += "</div>";
 
-  // Add CSS styles for hotel cards
   message += `
         <style>
             .hotel-cards-container {
@@ -658,7 +626,6 @@ function displayHotelResults(hotels) {
 }
 
 function displayRandomHotels() {
-  // Generate 5 random hotels
   let randomHotels = [];
   const usedIndices = new Set();
 
@@ -686,7 +653,6 @@ function displayRandomHotels() {
     }
   }
 
-  // Display each hotel in a separate message
   addMessageToChat("Here are 5 recommended luxury hotels:", "bot");
 
   randomHotels.forEach((hotel, index) => {
@@ -788,7 +754,6 @@ function displayRandomHotels() {
   });
 }
 
-// Utility Functions
 function showLoading() {
   loadingDiv.classList.remove("hidden");
 }
