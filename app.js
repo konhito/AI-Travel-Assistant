@@ -1,7 +1,7 @@
 // API Configuration
-const FLIGHT_API_KEY = "ab63ee9e14msh4cda285ee867cb7p163a33jsn5065afae71ea"; // Add your RapidAPI key here (same key works for both APIs)
-const HOTEL_API_KEY = "ab63ee9e14msh4cda285ee867cb7p163a33jsn5065afae71ea"; // Add your RapidAPI key here (same key works for both APIs)
-const AVIATION_API_KEY = "21523f4e74d1afebf7db88e0628b414b";
+const FLIGHT_API_KEY = "API_KEY_HERE"; // Add your RapidAPI key here (same key works for both APIs)
+const HOTEL_API_KEY = "API_KEY_HERE"; // Add your RapidAPI key here (same key works for both APIs)
+const AVIATION_API_KEY = "API_KEY_HERE";
 
 // City to IATA Code Mapping
 const cityToIATA = {
